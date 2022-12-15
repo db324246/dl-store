@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>__history__</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<style>
+  body {
+    padding-top: 20px;
+  }
+  .indent-2 {
+    text-indent: 2em;
+  }
+  .indent-4 {
+    text-indent: 4em;
+  }
+  .indent-6 {
+    text-indent: 6em;
+  }
+</style>
+<body>
+  <div class="container">
+    <h1>__history__</h1>
+    <hr />
+    <p> <span class="text-success">__history__</span> 是记录 <span class="text-success">store</span> 中操作 <span class="text-success">state</span> 的时间线数据队列，最多缓存100次操作。通过 <span class="text-success">__history__</span> 对象的 <span class="text-success">prevTime()/nextTime()</span> 方法，可以轻松实现 <span class="text-success">state</span> 数据的撤销/回退功能。</p>
+    <div class="d-flex">
+      <div class="card fs-5" style="min-width: 350px;margin-right: 10px;">
+        <div class="card-body">
+          <form>
+            <div class="mb-3">
+              结果：<span id="num"></span>
+            </div>
+            <div class="mb-3">
+              <input type="number" id="numInput" required>
+            </div>
+            <div>
+              <label for="add">
+                <button type="button" class="btn btn-primary" onclick="handleAdd(event)">加法</button>
+                <button type="button" class="btn btn-primary" onclick="handleSubtraction
+                (event)">减法</button>
+                <button type="button" class="btn btn-primary" onclick="handleMultiplication(event)">乘法</button>
+                <button type="button" class="btn btn-primary" onclick="handleDivision(event)">除法</button>
+              </label>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="card fs-5" style="flex: 1; min-width: 500px;">
+        <div class="card-body">
+          <div>计算：
+            <button type="button" class="btn btn-primary btn-sm" onclick="handlePrev()">上一步</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="handleNext()">下一步</button></div>
+          <div id="jsHistory"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="../lib/dl-store.iife.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script>
+  const store = new DlStore({
+    state: {
+      msg: '',
+      num: 0
+    },
+    actions: {
+      updatenum({ state }, num, msg) {
+        state.num = num
+        state.msg = msg
+      }
+    }
+  })
+
+  console.log(store)
+
+  const numInput = $('#numInput')[0]
+  numInput.value = 0
+  render()
+
+  function handleAdd(e) {
+    const val = Number(numInput.value || 0)
+    numInput.value = 0
+    store.dispatch('updatenum', store.state.num + val, `加上 ${val}`)
+    render()
+  }
+
+  function handleSubtraction(e) {
+    const val = Number(numInput.value || 0)
+    numInput.value = 0
+    store.dispatch('updatenum', store.state.num - val, `减去 ${val}`)
+    render()
+  }
+
+  function handleMultiplication(e) {
+    const val = Number(numInput.value || 0)
+    numInput.value = 0
+    store.dispatch('updatenum', store.state.num * val, `乘以 ${val}`)
+    render()
+  }
+
+  function handleDivision(e) {
+    const val = Number(numInput.value || 0)
+    numInput.value = 0
+    store.dispatch('updatenum', store.state.num / val, `除以 ${val}`)
+    render()
+  }
+
+  function handlePrev() {
+    store.__history__.prevTime()
+    render()
+  }
+
+  function handleNext() {
+    store.__history__.nextTime()
+    render()
+  }
+
+  function render() {
+    $('#num').text(store.state.num)
+
+    const currentIndex = store.__history__.currentTime - 1
+    const html = store.__history__.historyList.map((htime, index) => {
+        const [num, msg] = htime.actions
+        return `<div class="indent-2 mb-1 ${currentIndex === index ? 'border' : ''}">${num.oldVal} ${msg.val}，结果是：${num.val}</div>`
+      })
+      .reverse()
+      .join('')
+    $('#jsHistory').html(html)
+  }
+</script>
+</html>

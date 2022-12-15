@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>watch</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<style>
+  body {
+    padding-top: 20px;
+  }
+  .indent-2 {
+    text-indent: 2em;
+  }
+  .indent-4 {
+    text-indent: 4em;
+  }
+  .indent-6 {
+    text-indent: 6em;
+  }
+</style>
+<body>
+  <div class="container">
+    <h1>Watch</h1>
+    <hr />
+    <p> <span class="text-success">watch</span> 是 <span class="text-success">store</span> 中可以自定义的侦听器对象。通过监听及时响应数据的变化，当需要在数据变化时执行异步或开销较大的操作时，这个方式是最有用的。<br/>除了 <span class="text-success">watch</span> 选项之外，您还可以使用命令式的 <span class="text-success">store.addWatch()/store.removeWatch()</span> 动态的创建/移除侦听器。</p>
+    <div class="d-flex">
+      <div class="card fs-5" style="min-width: 350px;margin-right: 10px;">
+        <div class="card-body">
+          <div>state = {</div>
+          <div class="indent-2 text-primary">姓名: <span class="text-secondary" id="name"></span></div>
+          <div class="indent-2 text-primary">年龄: <span class="text-secondary" id="age"></span></div>
+          <div class="indent-2 text-primary">职业: {</div>
+          <div class="indent-4 text-primary">名称: <span class="text-secondary" id="occupation"></span></div>
+          <div class="indent-4 text-primary">单位名称: <span class="text-secondary" id="companyName"></span></div>
+          <div class="indent-4 text-primary">单位地址: <span class="text-secondary" id="companyAddress"></span></div>
+          <div class="indent-2 text-primary">}</div>
+          <div>}</div>
+        </div>
+        <br />
+        <div>watch = {</div>
+        <div class="indent-2">age(val) {</div>
+          <div class="indent-4">console.log(`张三：我今年${val}岁了`)</div>
+        <div class="indent-2">}</div>
+        <div class="indent-2">'occupation.companyName'(val) {</div>
+          <div class="indent-4">console.log(`张三：我跳槽到${val}上班了`)</div>
+        <div class="indent-2">}</div>
+        <div id="occupationWatch"></div>
+        <div>}</div>
+      </div>
+      <div class="card fs-5" style="flex: 1; min-width: 500px;">
+        <div class="card-body">
+          <form onsubmit="handleSave(event)">
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary" >保存</button>
+              <button type="button" class="btn btn-primary" onclick="handleAddWatch()">创建职位监听器</button>
+              <button type="button" class="btn btn-warning" onclick="handleRmWatch()">移除职位监听器</button>
+            </div>
+            <div class="mb-3">
+              <label for="input_age">修改年龄：</label>
+              <input type="number" id="input_age" required>
+            </div>
+            <div class="mb-3">
+              <label for="input_occupation">修改职位：</label>
+              <input type="text" id="input_occupation">
+            </div>
+            <div class="mb-3">
+              <label for="input_companyName">修改公司名称：</label>
+              <input type="text" id="input_companyName" required>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+      <div id="toastdom" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="msg">
+          </div>
+        </div>
+      </div>
+      <div id="agetoastdom" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="agemsg">
+          </div>
+        </div>
+      </div>
+      <div id="occupationtoastdom" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="occupationmsg">
+          </div>
+        </div>
+      </div>
+      <div id="companyNametoastdom" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="companyNamemsg">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="../lib/dl-store.iife.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script>
+  const toast = new bootstrap.Toast(toastdom)
+  const agetoast = new bootstrap.Toast(agetoastdom)
+  const occupationtoast = new bootstrap.Toast(occupationtoastdom)
+  const companyNametoast = new bootstrap.Toast(companyNametoastdom)
+  const store = new DlStore({
+    state: {
+      name: '张三',
+      age: 28,
+      occupation: {
+        name: '打工人',
+        companyName: 'XXX有限公司',
+        companyAddress: '繁华大道999号'
+      }
+    },
+    watch: {
+      age(val) {
+        const message = `张三：我今年${val}岁了`
+        console.log(this, message)
+        $('#agemsg').text(message)
+        agetoast.show()
+      },
+      'occupation.companyName'(val) {
+        const message = `张三：我跳槽到${val}上班了`
+        console.log(message)
+        $('#occupationmsg').text(message)
+        occupationtoast.show()
+      }
+    },
+    actions: {
+      updateage({ state }, age) {
+        state.age = age
+      },
+      updateoccupation({ state }, name) {
+        state.occupation.name = name
+      },
+      updatecompanyName({ state }, companyName) {
+        state.occupation.companyName = companyName
+      }
+    }
+  })
+
+  console.log(store)
+
+  const occupationInput = $('#input_occupation')[0]
+  const ageInput = $('#input_age')[0]
+  const companyNameInput = $('#input_companyName')[0]
+
+  render()
+  occupationInput.value = store.state.occupation.name
+  ageInput.value = store.state.age
+  companyNameInput.value = store.state.occupation.companyName
+
+  function handleSave(e) {
+    e.preventDefault();
+    const occupation = occupationInput.value
+    const age = +ageInput.value
+    const companyName = companyNameInput.value
+    console.log(age, occupation, companyName)
+    store.dispatch('updateage', age)
+    store.dispatch('updateoccupation', occupation)
+    store.dispatch('updatecompanyName', companyName)
+
+    render()
+  }
+
+  function handleAddWatch() {
+    const html = `<div class="indent-2">'occupation.name': {</div><div class="indent-4">handler(val) {</div><div class="indent-6">console.log(\`张三：我是一名光荣的\${val}\`)</div><div class="indent-4">},</div><div class="indent-4">immediate: true</div><div class="indent-2">}</div>`
+    $('#occupationWatch').html(html)
+    store.addWatch('occupation.name', {
+      handler(val) {
+        const message = `张三：我是一名光荣的${val}`
+        console.log(message)
+        $('#companyNamemsg').text(message)
+        companyNametoast.show()
+      },
+      immediate: true
+    })
+    // $('#msg').text('添加成功')
+    // toast.show()
+  }
+  function handleRmWatch() {
+    $('#occupationWatch').html('')
+    store.removeWatch('occupation.name')
+    $('#msg').text('移除成功')
+    toast.show()
+  }
+
+  function render() {
+    // state
+    $('#name').text(store.state.name)
+    $('#age').text(store.state.age)
+    $('#occupation').text(store.state.occupation.name)
+    $('#companyName').text(store.state.occupation.companyName)
+    $('#companyAddress').text(store.state.occupation.companyAddress)
+  }
+</script>
+</html>
