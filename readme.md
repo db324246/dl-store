@@ -3,6 +3,17 @@
 `dl-store` 是一个为 js 应用程序开发的状态管理模式，兼容web浏览器和node.js。它采用集中式存储管理应用的所有数据的状态，并以相应的规则保证状态以一种可预测的方式发生变化。<br />
 `dl-store` 的设计思路是参考的 vuex，使用体验上也极为相似。同时结合了 vue.js 的底层原理实现数据的响应式监听。
 
+## 安装
+### 通过 NPM 安装
+```
+npm i dl-store -S
+```
+### CDN
+目前可以通过 unpkg.com/dl-store 获取到最新版本的资源，在页面上引入 js 文件即可开始使用。
+``` html
+<script src="https://unpkg.com/dl-store@1.0.0/lib/dl-store.iife.min.js"></script>
+```
+
 ## 核心概念
 
 ### State

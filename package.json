@@ -1,13 +1,13 @@
 {
   "name": "dl-store",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.0.2",
+  "description": "一个为 js 应用程序开发的状态管理模式",
+  "main": "lib/dl-store.esm.js",
   "scripts": {
     "build": "rollup --config"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["node", "vuex", "vue", "store"],
+  "author": "戴小彬",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.20.5",

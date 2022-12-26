@@ -58,7 +58,7 @@ class InitWatch {
       val = val ? val[k] : this.parentStore.__datebase__[k]
     })
     const _val = deepClone(val)
-    fn(_val)
+    fn.call(this.parentStore, _val)
   }
 
   removeWatch(key, data) {
